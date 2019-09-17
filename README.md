@@ -11,10 +11,12 @@ cmake .
 ```
 
 To make the file
+
 ```bash
-make
+make 
 ```
 To install
+
 ```bash
 make install
 ```
@@ -26,8 +28,25 @@ make install
 ./bin/simpleSerialComms
 ```
 
+## TEST
+
+You can create virtual serial port by using
+ 
+```bash
+socat -d -d pty,raw,echo=0 pty,raw,echo=0
+```
+
+and use minicom to interact and test
+ 
+```bash
+minicom -D /dev/pts/<port number> 
+```
+
+
 ## Upcoming changes
-* Ability to transmit data
+
+* <s>Ability to transmit data</s> - Implemented on 17-September-2019 
+* Add version number
 * Ability to have a callback on received message
 * Serial Comms setting via config.txt
 * Debug class to output messages based on levels

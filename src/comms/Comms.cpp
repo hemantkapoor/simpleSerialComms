@@ -76,6 +76,8 @@ bool Comms::startComms()
 	//We expect Raw Data
 	options.c_lflag &= ~(ICANON | ECHO | ECHOE | ISIG);
 
+	options.c_oflag = 0;                // no remapping, no delays
+
 
 	/*
 	 * Enable the receiver and set local mode...
@@ -83,11 +85,15 @@ bool Comms::startComms()
 
 	options.c_cflag |= (CLOCAL | CREAD);
 
+	options.c_iflag &= ~(IXON | IXOFF | IXANY); // shut off xon/xoff ctrl
+
 	/*
 	 * Set the new options for the port...
 	 */
 
 	tcsetattr(m_fileDescriptor, TCSANOW, &options);
+
+	m_commPortOpen = true;
 
 	return true;
 
@@ -107,4 +113,12 @@ void Comms::processRead()
 		//Read every 500 milliseconds
 		std::this_thread::sleep_for(std::chrono::milliseconds(500));
 	}
+}
+
+bool Comms::transmitData(std::vector<uint8_t>& data)
+{
+	if(m_commPortOpen == false)	{ return false; }
+	auto dataWritten = write(m_fileDescriptor,data.data(), data.size());
+	if(dataWritten > 0) { return true; }
+	return false;
 }

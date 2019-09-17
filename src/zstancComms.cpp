@@ -9,11 +9,21 @@
 #include <iostream>
 #include <memory>
 #include <thread>
+#include <vector>
+#include <future>
 #include"comms/Comms.h"
+
+
+char GetUserOption()
+{
+    char option;
+    std::cin.get(option);
+    return option;
+}
 
 int main() {
 	std::cout << "!!!Hello World!!!" << std::endl; // prints !!!Hello World!!!
-	std::string serialPath =  R"(/dev/pts/19)";
+	std::string serialPath =  R"(/dev/pts/1)";
 	auto sp = std::make_shared<Comms>(serialPath);
 	if(sp->startComms() == false)
 	{
@@ -24,9 +34,22 @@ int main() {
 	std::thread thread_1(&Comms::processRead, sp);
 	std::cout<<__PRETTY_FUNCTION__<<" : Serial port Running... Press q to quit\r\n";
 	char option;
+
+	std::vector<uint8_t> transmitData{'H','E','L','L','O','\r','\n'};
+
+	auto future = std::async(std::launch::async, GetUserOption);
+
 	while(option != 'q')
 	{
-		std::cin.get(option);
+		if (future.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+		{
+			option = future.get();
+		}
+		//For test purpose lets write
+		if(sp->transmitData(transmitData) == false)
+		{
+			std::cout<<__PRETTY_FUNCTION__<<" : Transmit Failed\r\n";
+		}
 		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 	}
 	//We are here so do graceful exit

@@ -9,6 +9,7 @@
 #define COMMS_COMMS_H_
 
 #include <string>
+#include <vector>
 #include <stdint.h>
 
 namespace CommsName
@@ -24,6 +25,7 @@ public:
 
 	bool startComms();
 	void processRead();
+	bool transmitData(std::vector<uint8_t>& data);
 	void stopRead() { m_stopRead = true; }
 
 private:
